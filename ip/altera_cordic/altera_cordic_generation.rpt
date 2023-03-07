@@ -1,0 +1,46 @@
+Info: Starting: Create block symbol file (.bsf)
+Info: qsys-generate /home/tokiv5/ip/altera_cordic.qsys --block-symbol-file --output-directory=/home/tokiv5/ip/altera_cordic --family="Cyclone V" --part=5CEBA4F23C8
+Progress: Loading ip/altera_cordic.qsys
+Progress: Reading input file
+Progress: Adding CORDIC_0 [altera_CORDIC 17.1]
+Progress: Parameterizing module CORDIC_0
+Progress: Building connections
+Progress: Parameterizing connections
+Progress: Validating
+Progress: Done reading input file
+Info: qsys-generate succeeded.
+Info: Finished: Create block symbol file (.bsf)
+Info: 
+Info: Starting: Create HDL design files for synthesis
+Info: qsys-generate /home/tokiv5/ip/altera_cordic.qsys --synthesis=VHDL --output-directory=/home/tokiv5/ip/altera_cordic/synthesis --family="Cyclone V" --part=5CEBA4F23C8
+Progress: Loading ip/altera_cordic.qsys
+Progress: Reading input file
+Progress: Adding CORDIC_0 [altera_CORDIC 17.1]
+Progress: Parameterizing module CORDIC_0
+Progress: Building connections
+Progress: Parameterizing connections
+Progress: Validating
+Progress: Done reading input file
+Info: altera_cordic: Generating altera_cordic "altera_cordic" for QUARTUS_SYNTH
+Info: CORDIC_0: /home/tokiv5/intelFPGA_lite/17.1/ip/altera/dsp/altera_CORDIC/source//cmdPolyEval.sh /home/tokiv5/intelFPGA_lite/17.1/quartus/dspba/backend/linux64 -target CycloneV -frequency 400 -name none -noChanValid -faithfulRounding -enable -printMachineReadable -noFileGenerate -speedgrade 8 FXPSinCosCordic 16 13 1 11
+Info: CORDIC_0: /home/tokiv5/intelFPGA_lite/17.1/ip/altera/dsp/altera_CORDIC/source//cmdPolyEval.sh /home/tokiv5/intelFPGA_lite/17.1/quartus/dspba/backend/linux64 -target CycloneV -frequency 200 -name none -noChanValid -faithfulRounding -enable -printMachineReadable -noFileGenerate -speedgrade 8 FXPSinCosCordic 16 13 1 11
+Info: CORDIC_0: /home/tokiv5/intelFPGA_lite/17.1/ip/altera/dsp/altera_CORDIC/source//cmdPolyEval.sh /home/tokiv5/intelFPGA_lite/17.1/quartus/dspba/backend/linux64 -target CycloneV -frequency 100 -name none -noChanValid -faithfulRounding -enable -printMachineReadable -noFileGenerate -speedgrade 8 FXPSinCosCordic 16 13 1 11
+Info: CORDIC_0: /home/tokiv5/intelFPGA_lite/17.1/ip/altera/dsp/altera_CORDIC/source//cmdPolyEval.sh /home/tokiv5/intelFPGA_lite/17.1/quartus/dspba/backend/linux64 -target CycloneV -frequency 50 -name none -noChanValid -faithfulRounding -enable -printMachineReadable -noFileGenerate -speedgrade 8 FXPSinCosCordic 16 13 1 11
+Info: CORDIC_0: /home/tokiv5/intelFPGA_lite/17.1/ip/altera/dsp/altera_CORDIC/source//cmdPolyEval.sh /home/tokiv5/intelFPGA_lite/17.1/quartus/dspba/backend/linux64 -target CycloneV -frequency 25 -name none -noChanValid -faithfulRounding -enable -printMachineReadable -noFileGenerate -speedgrade 8 FXPSinCosCordic 16 13 1 11
+Info: CORDIC_0: /home/tokiv5/intelFPGA_lite/17.1/ip/altera/dsp/altera_CORDIC/source//cmdPolyEval.sh /home/tokiv5/intelFPGA_lite/17.1/quartus/dspba/backend/linux64 -target CycloneV -frequency 38 -name none -noChanValid -faithfulRounding -enable -printMachineReadable -noFileGenerate -speedgrade 8 FXPSinCosCordic 16 13 1 11
+Info: CORDIC_0: /home/tokiv5/intelFPGA_lite/17.1/ip/altera/dsp/altera_CORDIC/source//cmdPolyEval.sh /home/tokiv5/intelFPGA_lite/17.1/quartus/dspba/backend/linux64 -target CycloneV -frequency 31 -name none -noChanValid -faithfulRounding -enable -printMachineReadable -noFileGenerate -speedgrade 8 FXPSinCosCordic 16 13 1 11
+Info: CORDIC_0: /home/tokiv5/intelFPGA_lite/17.1/ip/altera/dsp/altera_CORDIC/source//cmdPolyEval.sh /home/tokiv5/intelFPGA_lite/17.1/quartus/dspba/backend/linux64 -target CycloneV -frequency 27 -name none -noChanValid -faithfulRounding -enable -printMachineReadable -noFileGenerate -speedgrade 8 FXPSinCosCordic 16 13 1 11
+Info: CORDIC_0: /home/tokiv5/intelFPGA_lite/17.1/ip/altera/dsp/altera_CORDIC/source//cmdPolyEval.sh /home/tokiv5/intelFPGA_lite/17.1/quartus/dspba/backend/linux64 -target CycloneV -frequency 29 -name none -noChanValid -faithfulRounding -enable -printMachineReadable -noFileGenerate -speedgrade 8 FXPSinCosCordic 16 13 1 11
+Info: CORDIC_0: /home/tokiv5/intelFPGA_lite/17.1/ip/altera/dsp/altera_CORDIC/source//cmdPolyEval.sh /home/tokiv5/intelFPGA_lite/17.1/quartus/dspba/backend/linux64 -target CycloneV -frequency 30 -name none -noChanValid -faithfulRounding -enable -printMachineReadable -noFileGenerate -speedgrade 8 FXPSinCosCordic 16 13 1 11
+Info: CORDIC_0: /home/tokiv5/intelFPGA_lite/17.1/ip/altera/dsp/altera_CORDIC/source//cmdPolyEval.sh /home/tokiv5/intelFPGA_lite/17.1/quartus/dspba/backend/linux64 -target CycloneV -frequency 31 -name none -noChanValid -faithfulRounding -enable -printMachineReadable -noFileGenerate -speedgrade 8 FXPSinCosCordic 16 13 1 11
+Info: CORDIC_0: /home/tokiv5/intelFPGA_lite/17.1/ip/altera/dsp/altera_CORDIC/source//cmdPolyEval.sh /home/tokiv5/intelFPGA_lite/17.1/quartus/dspba/backend/linux64 -target CycloneV -frequency 30 -name none -noChanValid -faithfulRounding -enable -printMachineReadable -noFileGenerate -speedgrade 8 FXPSinCosCordic 16 13 1 11
+Info: CORDIC_0: Could achieve 2 cycles latency maximum at Frequency 31 MHz, padding with registers to reach requested 2 cycles latency
+Info: CORDIC_0: /home/tokiv5/intelFPGA_lite/17.1/ip/altera/dsp/altera_CORDIC/source//cmdPolyEval.sh /home/tokiv5/intelFPGA_lite/17.1/quartus/dspba/backend/linux64 -target CycloneV -frequency 30 -name altera_cordic_CORDIC_0 -noChanValid -faithfulRounding -enable -printMachineReadable -lang VHDL -constrainLatency 2 -speedgrade 8 FXPSinCosCordic 16 13 1 11
+Info: CORDIC_0: DSP Blocks Used: 0
+Info: CORDIC_0: LUTs Used: 1294
+Info: CORDIC_0: Memory Bits Used: 0
+Info: CORDIC_0: Memory Blocks Used: 0
+Info: CORDIC_0: "altera_cordic" instantiated altera_CORDIC "CORDIC_0"
+Info: altera_cordic: Done "altera_cordic" with 2 modules, 4 files
+Info: qsys-generate succeeded.
+Info: Finished: Create HDL design files for synthesis

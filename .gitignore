@@ -1,0 +1,10 @@
+work/
+test/
+data/
+*.txt
+wlft*
+transcript
+*.vstf
+*.mti
+*.mpf
+*.wlf

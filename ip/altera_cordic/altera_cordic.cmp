@@ -1,0 +1,11 @@
+	component altera_cordic is
+		port (
+			a      : in  std_logic_vector(15 downto 0) := (others => 'X'); -- a
+			areset : in  std_logic                     := 'X';             -- reset
+			c      : out std_logic_vector(12 downto 0);                    -- c
+			clk    : in  std_logic                     := 'X';             -- clk
+			en     : in  std_logic_vector(0 downto 0)  := (others => 'X'); -- en
+			s      : out std_logic_vector(12 downto 0)                     -- s
+		);
+	end component altera_cordic;
+
