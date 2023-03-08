@@ -249,6 +249,6 @@ begin
   end generate;
 
   IsDeteced: for i in 0 to 31 generate
-    detectedSAT(i) <= '1' when max_accum(i) > (second_max(47 downto 0) & "0") else '0';
+    detectedSAT(i) <= '1' when max_accum(i) > ACQ_THRESHOLD else '0';
   end generate;
 end arch ; -- arch
