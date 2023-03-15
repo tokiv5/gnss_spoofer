@@ -18,7 +18,7 @@ module acqusition_tb ();
   always # 10 clk_div_2 = ~clk_div_2;
   initial begin
     rst = 1;
-    fd  = $fopen("./data/gpssim.bin", "rb");
+    fd  = $fopen("./data/sim100.bin", "rb");
     err = $ferror(fd, str);  
     $display("File1 descriptor is: %h.", fd );//non-0
     $display("Error1 number is: %h.", err );  //0
@@ -47,8 +47,8 @@ module acqusition_tb ();
     if (isEOF == 1) begin
       $display("It is end of file");
     end else begin
-      $display("$fread read i-channel data %h", data_i) ;
-      $display("$fread read q-channel data %h", data_q) ;
+      //$display("$fread read i-channel data %h", data_i) ;
+      //$display("$fread read q-channel data %h", data_q) ;
     end
     
   end

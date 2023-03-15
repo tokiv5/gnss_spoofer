@@ -49,6 +49,7 @@
 library IEEE;
 use IEEE.STD_LOGIC_1164.ALL;
 use IEEE.std_logic_unsigned.all;
+use IEEE.std_logic_arith.all;
 
 use work.gnss_p.all;
 
@@ -89,7 +90,7 @@ architecture Behavioral of L1_CA_generator is
 				WIDTH_CMP => 10)					
 			port map(clk => clk,
 				rst => rst,
-				seed	=> "1111111111",			-- same for all PRNs
+				seed	=> "1000001110",			-- same for all PRNs -- Start from code phase 515
 				tap => "1000000100",				-- same for all PRNs
 				RESET => "0000000000",			-- no reset
 				output => "1000000000",			-- just last one
@@ -103,7 +104,7 @@ architecture Behavioral of L1_CA_generator is
 				WIDTH_CMP => 10)
 			port map(clk => clk,
 				rst => rst,
-				seed	=> "1111111111",			-- same for all PRNs
+				seed	=> "0111001100",			-- same for all PRNs
 				tap => "1110100110",				-- same for all PRNs
 				RESET => "0000000000",			-- no reset
 				output => output_CA_G2,			-- diferent for each PRN
@@ -192,7 +193,7 @@ architecture Behavioral of L1_CA_generator is
 					valid_out <= '0';
 					epoch <= '0';
 					epoch_advce <= '0';
-					code_phase <= (others => '0');
+					code_phase <= conv_std_logic_vector(515, 10);
 					-- LSFRs inputs
 					-- ENABLE_LSFR <= '0';
 					
