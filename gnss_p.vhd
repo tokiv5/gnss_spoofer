@@ -7,14 +7,16 @@ package gnss_p is
   subtype BLADERF_T      is std_logic_vector(15 downto 0);
   subtype DOPPLER_T      is std_logic_vector(6 downto 0); -- -50 to 50
   subtype CODE_PHASE_T   is std_logic_vector(9 downto 0);
+  subtype SIMP_T         is std_logic_vector(7 downto 0); -- Half of 16 to save resource
+  type SIMP_SAT_T     is array(31 downto 0) of SIMP_T;
   type BLADERF_SAT_T  is array(31 downto 0) of BLADERF_T;
   type DOPPLER_SAT_T  is array(31 downto 0) of DOPPLER_T;
   type CODE_SAT_T     is array(31 downto 0) of CODE_PHASE_T;
   subtype SAT_T          is integer range 0 to 31;
 
   type MULT_RESULT  is array(31 downto 0) of std_logic_vector(31 downto 0);
-  type ACCUM_RESULT is array(31 downto 0) of std_logic_vector(35 downto 0);
-  type ACQ_RESULT   is array(31 downto 0) of std_logic_vector(32 downto 0); -- Sum of iq accumulation(absolute value)
+  type ACCUM_RESULT is array(31 downto 0) of std_logic_vector(17 downto 0);
+  type ACQ_RESULT   is array(31 downto 0) of std_logic_vector(16 downto 0); -- Sum of iq accumulation(absolute value)
 
   constant F_SAMPLE : natural := 10230000; -- 10.23 MHz
 

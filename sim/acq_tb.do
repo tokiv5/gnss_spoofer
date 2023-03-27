@@ -25,4 +25,4 @@ add wave acqusition_tb/uut/local_incr_16
 add wave acqusition_tb/uut/local_input
 add wave acqusition_tb/uut/DOPPLER
 add wave acqusition_tb/uut/RP_GEN(3)/ie/r0/L0/cont_epoch
-run 210000
+run 10000

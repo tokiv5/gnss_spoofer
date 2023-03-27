@@ -58,9 +58,9 @@ module acqusition_tb ();
     .reset(rst),
     .i_in(data_i),
     .q_in(data_q),
-    .detectedSAT(SAT),
-    .dopplerSAT(),
-    .phaseSAT()
+    .detectedSAT(SAT)
+    //.dopplerSAT(),
+    //.phaseSAT()
   );
 
 endmodule

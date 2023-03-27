@@ -50,10 +50,11 @@ use IEEE.std_logic_unsigned.all; -- additions
 
 entity LFSR_generator is
 	GENERIC(WIDTH : integer := 10;	
-		WIDTH_CMP : integer := 10);		
+		WIDTH_CMP : integer := 10;
+		SEED : std_logic_vector(9 downto 0) :="1111111111");		
 	Port (clk : in STD_LOGIC;
 		rst	: in STD_LOGIC;									-- reset
-		seed	: in STD_LOGIC_VECTOR (WIDTH-1 downto 0);	-- initial state
+		--seed	: in STD_LOGIC_VECTOR (WIDTH-1 downto 0);	-- initial state
 		tap	: in STD_LOGIC_VECTOR (WIDTH-1 downto 0);	-- XOR taps for input
 		RESET : in STD_LOGIC_VECTOR (WIDTH-1 downto 0); -- reset at this state
 		output : in STD_LOGIC_VECTOR (WIDTH-1 downto 0);-- phase selector taps		
@@ -65,7 +66,7 @@ end LFSR_generator;
 
 architecture Behavioral of LFSR_generator is
 
-	signal reg: std_logic_vector(WIDTH-1 downto 0);
+	signal reg: std_logic_vector(WIDTH-1 downto 0) := SEED;
 	signal tap_mem: std_logic_vector(WIDTH-1 downto 0);
 	signal RESET_mem: std_logic_vector(WIDTH-1 downto 0);
 	signal output_mem: std_logic_vector(WIDTH-1 downto 0);
@@ -75,12 +76,14 @@ architecture Behavioral of LFSR_generator is
 	
 	signal count : std_logic_vector(WIDTH_CMP-1 downto 0);
 	
-	-- Debugging (these lines will be removed when synthesizing)
-	signal epoch : STD_LOGIC;
-	signal all_ones: std_logic_vector(WIDTH-1 downto 0);
-	signal epoch_ones : STD_LOGIC;
-	
 	begin
+		tap_mem <= tap;
+		RESET_mem <= RESET;
+		output_mem <= output;
+		seed_mem <= seed;
+		--reg <= seed;			
+		count_cmp_mem <= count_cmp;
+
 		proc: process(clk, rst)
 		
 			variable xor_result_1 : std_logic; -- taps
@@ -89,7 +92,7 @@ architecture Behavioral of LFSR_generator is
 			begin
 				if (rst = '1') then
 					--LSFR
-					reg <=  (others => '0');							
+					reg <= SEED;							
 					xor_result_1 :=  '0';
 					xor_result_2 :=  '0';
 					SEQ <= '0';	
@@ -97,17 +100,6 @@ architecture Behavioral of LFSR_generator is
 					count <= (others => '0');
 
 					-- These values must be already valid when reseting.
-					tap_mem <= tap;
-					RESET_mem <= RESET;
-					output_mem <= output;
-					seed_mem <= seed;
-					reg <= seed;			
-					count_cmp_mem <= count_cmp;
-
-					-- Debugging
-					all_ones <= (others => '1');	
-					epoch <= '0';
-					epoch_ones <= '0';
 
 				elsif (rising_edge(clk)) then
 					if (ENABLE = '0') then -- Freeze everything
@@ -147,19 +139,7 @@ architecture Behavioral of LFSR_generator is
 							else
 								count <= count + 1;
 							end if;
-						end if;
-						
-						-- Debugging
-						if (reg = seed) then
-							epoch <= '1';
-						else
-							epoch <= '0';
-						end if;
-						if reg = all_ones then
-							epoch_ones <= '1';
-						else
-							epoch_ones <= '0';
-						end if;								
+						end if;							
 					end if; --enable
 				end if; 		--clock				
 		end process proc; 

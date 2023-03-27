@@ -87,10 +87,11 @@ architecture Behavioral of L1_CA_generator is
 		epoch_out   <= epoch;
 		G1_gen : entity work.LFSR_generator(Behavioral)
 			generic map(WIDTH => 10,
-				WIDTH_CMP => 10)					
+				WIDTH_CMP => 10,
+				SEED	=> "1000001110")					
 			port map(clk => clk,
 				rst => rst,
-				seed	=> "1000001110",			-- same for all PRNs -- Start from code phase 515
+				-- Start from code phase 515
 				tap => "1000000100",				-- same for all PRNs
 				RESET => "0000000000",			-- no reset
 				output => "1000000000",			-- just last one
@@ -101,10 +102,10 @@ architecture Behavioral of L1_CA_generator is
 				
 		G2_gen : entity work.LFSR_generator(Behavioral)
 			generic map(WIDTH => 10,
-				WIDTH_CMP => 10)
+				WIDTH_CMP => 10,
+				SEED	=> "0111001100")
 			port map(clk => clk,
 				rst => rst,
-				seed	=> "0111001100",			-- same for all PRNs
 				tap => "1110100110",				-- same for all PRNs
 				RESET => "0000000000",			-- no reset
 				output => output_CA_G2,			-- diferent for each PRN
