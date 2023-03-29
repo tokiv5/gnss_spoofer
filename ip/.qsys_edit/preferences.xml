@@ -9,5 +9,5 @@
  </systemtable>
  <library expandedCategories="Project,Library" />
  <window width="1100" height="800" x="72" y="27" />
- <generation synthesis="VHDL" />
+ <generation synthesis="VHDL" simulation="VHDL" />
 </preferences>

@@ -4,8 +4,8 @@
 			reset_n   : in  std_logic                     := 'X';             -- reset_n
 			clken     : in  std_logic                     := 'X';             -- clken
 			phi_inc_i : in  std_logic_vector(31 downto 0) := (others => 'X'); -- phi_inc_i
-			fsin_o    : out std_logic_vector(17 downto 0);                    -- fsin_o
-			fcos_o    : out std_logic_vector(17 downto 0);                    -- fcos_o
+			fsin_o    : out std_logic_vector(11 downto 0);                    -- fsin_o
+			fcos_o    : out std_logic_vector(11 downto 0);                    -- fcos_o
 			out_valid : out std_logic                                         -- out_valid
 		);
 	end component nco;

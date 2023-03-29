@@ -68,10 +68,10 @@
   <parameter name="design_env" value="NATIVE" />
   <parameter name="dpri" value="4" />
   <parameter name="fmod_pipe" value="1" />
-  <parameter name="freq_out" value="0.01" />
+  <parameter name="freq_out" value="0.001" />
   <parameter name="fsamp" value="20.46" />
   <parameter name="hyper_opt_select" value="false" />
-  <parameter name="mpr" value="18" />
+  <parameter name="mpr" value="12" />
   <parameter name="numba" value="1" />
   <parameter name="numch" value="1" />
   <parameter name="pmod_pipe" value="1" />

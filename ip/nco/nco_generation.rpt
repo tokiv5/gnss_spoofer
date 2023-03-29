@@ -1,3 +1,37 @@
+Info: Starting: Create simulation model
+Info: qsys-generate /home/tokiv5/ip/nco.qsys --simulation=VHDL --allow-mixed-language-simulation --output-directory=/home/tokiv5/ip/nco/simulation --family="Cyclone V" --part=5CEBA4F23C8
+Progress: Loading ip/nco.qsys
+Progress: Reading input file
+Progress: Adding nco_ii_0 [altera_nco_ii 17.1]
+Progress: Parameterizing module nco_ii_0
+Progress: Building connections
+Progress: Parameterizing connections
+Progress: Validating
+Progress: Done reading input file
+Info: nco: Generating nco "nco" for SIM_VHDL
+Info: nco_ii_0: "nco" instantiated altera_nco_ii "nco_ii_0"
+Info: nco: Done "nco" with 2 modules, 56 files
+Info: qsys-generate succeeded.
+Info: Finished: Create simulation model
+Info: Starting: Create Modelsim Project.
+Info: sim-script-gen --spd=/home/tokiv5/ip/nco/nco.spd --output-directory=/home/tokiv5/ip/nco/simulation/ --use-relative-paths=true
+Info: Doing: ip-make-simscript --spd=/home/tokiv5/ip/nco/nco.spd --output-directory=/home/tokiv5/ip/nco/simulation/ --use-relative-paths=true
+Info: Generating the following file(s) for MODELSIM simulator in /home/tokiv5/ip/nco/simulation/ directory:
+Info: 	mentor/msim_setup.tcl
+Info: Skipping VCS script generation since VHDL file $QUARTUS_INSTALL_DIR/eda/sim_lib/altera_syn_attributes.vhd is required for simulation
+Info: Generating the following file(s) for VCSMX simulator in /home/tokiv5/ip/nco/simulation/ directory:
+Info: 	synopsys/vcsmx/synopsys_sim.setup
+Info: 	synopsys/vcsmx/vcsmx_setup.sh
+Info: Generating the following file(s) for NCSIM simulator in /home/tokiv5/ip/nco/simulation/ directory:
+Info: 	cadence/cds.lib
+Info: 	cadence/hdl.var
+Info: 	cadence/ncsim_setup.sh
+Info: 	1 .cds.lib files in cadence/cds_libs/ directory
+Info: Generating the following file(s) for RIVIERA simulator in /home/tokiv5/ip/nco/simulation/ directory:
+Info: 	aldec/rivierapro_setup.tcl
+Info: For information on how to simulate your IP, see the explanatory comments in the simulator-specific subdirectories under /home/tokiv5/ip/nco/simulation/.
+Info: Regenerate these scripts whenever you make any change to any Quartus-generated IP in your project.
+Info: Finished: Create Modelsim Project.
 Info: Starting: Create block symbol file (.bsf)
 Info: qsys-generate /home/tokiv5/ip/nco.qsys --block-symbol-file --output-directory=/home/tokiv5/ip/nco --family="Cyclone V" --part=5CEBA4F23C8
 Progress: Loading ip/nco.qsys

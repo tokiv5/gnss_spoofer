@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <EnsembleReport name="nco" kind="system" version="17.1" fabric="QSYS">
  <!-- Format version 17.1 590 (Future versions may contain additional information.) -->
- <!-- 2023.03.24.03:51:46 -->
+ <!-- 2023.03.27.22:42:14 -->
  <!-- A collection of modules and connections -->
  <parameter name="clockCrossingAdapter">
   <type>com.altera.sopcmodel.ensemble.EClockAdapter</type>
@@ -53,7 +53,7 @@
  </parameter>
  <parameter name="generationId">
   <type>int</type>
-  <value>1679655105</value>
+  <value>1679982133</value>
   <derived>false</derived>
   <enabled>true</enabled>
   <visible>true</visible>
@@ -226,7 +226,7 @@ the requested settings for a module instance. -->
   </parameter>
   <parameter name="mpr">
    <type>int</type>
-   <value>18</value>
+   <value>12</value>
    <derived>false</derived>
    <enabled>true</enabled>
    <visible>true</visible>
@@ -282,7 +282,7 @@ the requested settings for a module instance. -->
   </parameter>
   <parameter name="freq_out">
    <type>double</type>
-   <value>0.01</value>
+   <value>0.001</value>
    <derived>false</derived>
    <enabled>true</enabled>
    <visible>true</visible>
@@ -290,7 +290,7 @@ the requested settings for a module instance. -->
   </parameter>
   <parameter name="phi_inc">
    <type>long</type>
-   <value>2099202</value>
+   <value>209920</value>
    <derived>true</derived>
    <enabled>true</enabled>
    <visible>true</visible>
@@ -298,7 +298,7 @@ the requested settings for a module instance. -->
   </parameter>
   <parameter name="real_freq_out">
    <type>double</type>
-   <value>0.01</value>
+   <value>0.001</value>
    <derived>true</derived>
    <enabled>true</enabled>
    <visible>true</visible>
@@ -570,13 +570,13 @@ parameters are a RESULT of the module parameters. -->
    <port>
     <name>fsin_o</name>
     <direction>Output</direction>
-    <width>18</width>
+    <width>12</width>
     <role>fsin_o</role>
    </port>
    <port>
     <name>fcos_o</name>
     <direction>Output</direction>
-    <width>18</width>
+    <width>12</width>
     <role>fcos_o</role>
    </port>
    <port>
@@ -620,5 +620,5 @@ parameters are a RESULT of the module parameters. -->
   <version>17.1</version>
  </plugin>
  <reportVersion>17.1 590</reportVersion>
- <uniqueIdentifier>0242145DDA9700000187133EF48C</uniqueIdentifier>
+ <uniqueIdentifier>02420A74D30C0000018726BD02F1</uniqueIdentifier>
 </EnsembleReport>
