@@ -40,5 +40,6 @@ package gnss_p is
   constant ACQ_THRESHOLD    : std_logic_vector(48 downto 0) := (others => '0');
 
   -- step = 2*pi*f_d_step*(1/2fs) = pi*200/10.23M = 6.1419e-5, Actual value is 0.00006103515625 => actual fd_step is 198.7494 hz
-  constant DOP_FREQ_STEP    : std_logic_vector(15 downto 0) := "0000000000000010"; -- 1 int bits + 15 fraction bits
+  -- constant DOP_FREQ_STEP    : std_logic_vector(15 downto 0) := "0000000000000010"; -- 1 int bits + 15 fraction bits
+  constant DOP_FREQ_STEP    : std_logic_vector(15 downto 0) := conv_std_logic_vector(20992, 16);
 end package ;

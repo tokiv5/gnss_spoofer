@@ -10,7 +10,9 @@ entity acquisition is
     reset       : IN std_logic;
     i_in        : IN BLADERF_T;
     q_in        : IN BLADERF_T;
-    detectedSAT : OUT std_logic_vector(31 downto 0)
+    detectedSAT : OUT std_logic_vector(31 downto 0);
+    complete    : OUT std_logic;
+    enable      : IN std_logic
     --dopplerSAT  : OUT DOPPLER_SAT_T;
     --phaseSAT    : OUT CODE_SAT_T
   ) ;
@@ -24,12 +26,12 @@ architecture arch of acquisition is
   signal local_incr    : std_logic_vector(31 downto 0);
   signal local_incr_16 : std_logic_vector(15 downto 0);
 
-  signal sin_in             : std_logic_vector(12 downto 0); -- 2 integer bits + 11 fraction bits
-  signal cos_in             : std_logic_vector(12 downto 0);
-
-  signal i_out_16, q_out_16   : BLADERF_SAT_T;
+  signal sin_in             : BLADERF_AD_T; -- 2 integer bits + 11 fraction bits
+  signal cos_in             : BLADERF_AD_T;
+  signal mult_iq_in         : BLADERF_T;
+  signal i_out_16, q_out_16, mult_local_in    : BLADERF_SAT_T; --  local replica signals
   
-  signal mult_i, mult_q                       : MULT_RESULT; -- i_local 5+11(2+11) i_in 5+11(1+11) mult 10+22(3+22) -- i-square = i_acc_16*i_acc_16
+  signal mult_i, mult_q, mult_res             : MULT_RESULT; -- i_local 5+11(2+11) i_in 5+11(1+11) mult 10+22(3+22) -- i-square = i_acc_16*i_acc_16
   signal i_square, q_square                   : BLADERF_SAT_T;
   signal i_accum, q_accum                     : ACCUM_RESULT;
   signal i_accum_16, q_accum_16               : BLADERF_SAT_T;
@@ -43,6 +45,7 @@ architecture arch of acquisition is
 
   signal dopplers, dopplerSAT  : DOPPLER_SAT_T;
   signal phases, phaseSAT      : CODE_SAT_T;
+  signal reset_n : std_logic;
 
   component replica_generator
     port (
@@ -51,27 +54,27 @@ architecture arch of acquisition is
       enable             : IN  std_logic;
       SAT                : IN  integer range 0 to 31;
       DOPPLER            : IN  DOPPLER_T;
-      i_out              : OUT std_logic_vector(12 downto 0);
-      q_out              : OUT std_logic_vector(12 downto 0);
+      i_out              : OUT BLADERF_AD_T;
+      q_out              : OUT BLADERF_AD_T;
       valid              : OUT std_logic;
       phase_period_epoch : out std_logic; -- 1023 phase big loop completion flag
       code_phase         : OUT CODE_PHASE_T;
-      sin_in             : IN std_logic_vector(12 downto 0);
-      cos_in             : IN std_logic_vector(12 downto 0);
+      sin_in             : IN BLADERF_AD_T;
+      cos_in             : IN BLADERF_AD_T;
       epoch              : OUT std_logic -- show that 1023 chips go over
     ) ;
   end component;
 
-  component altera_cordic is
-		port (
-			clk    : in  std_logic                     := 'X';             -- clk
-			areset : in  std_logic                     := 'X';             -- reset
-			a      : in  std_logic_vector(15 downto 0) := (others => 'X'); -- a
-			c      : out std_logic_vector(12 downto 0);                    -- c
-			s      : out std_logic_vector(12 downto 0);                    -- s
-			en     : in  std_logic_vector(0 downto 0)  := (others => 'X')  -- en
-		);
-	end component altera_cordic;
+  -- component altera_cordic is
+	-- 	port (
+	-- 		clk    : in  std_logic                     := 'X';             -- clk
+	-- 		areset : in  std_logic                     := 'X';             -- reset
+	-- 		a      : in  std_logic_vector(15 downto 0) := (others => 'X'); -- a
+	-- 		c      : out std_logic_vector(12 downto 0);                    -- c
+	-- 		s      : out std_logic_vector(12 downto 0);                    -- s
+	-- 		en     : in  std_logic_vector(0 downto 0)  := (others => 'X')  -- en
+	-- 	);
+	-- end component altera_cordic;
 
   component altera_mult
 	PORT
@@ -89,13 +92,25 @@ architecture arch of acquisition is
 		result		: OUT STD_LOGIC_VECTOR (15 DOWNTO 0)
   );
   end component;
+
+  component nco is
+		port (
+			clk       : in  std_logic                     := 'X';             -- clk
+			reset_n   : in  std_logic                     := 'X';             -- reset_n
+			clken     : in  std_logic                     := 'X';             -- clken
+			phi_inc_i : in  std_logic_vector(31 downto 0) := (others => 'X'); -- phi_inc_i
+			fsin_o    : out std_logic_vector(11 downto 0);                    -- fsin_o
+			fcos_o    : out std_logic_vector(11 downto 0);                    -- fcos_o
+			out_valid : out std_logic                                         -- out_valid
+		);
+	end component nco;
 begin
   -------------------- Common for all channels ------------------------------
   dopplerSAT  <=  dopplers;
   phaseSAT    <=  phases;
 
-  doppler_extend(6 downto 0) <= DOPPLER;
-  doppler_extend(15 downto 7) <= (others => DOPPLER(6));
+  doppler_extend(7 downto 0) <= DOPPLER & '0';
+  doppler_extend(15 downto 8) <= (others => DOPPLER(6));
 
   m0: altera_mult
   port map (
@@ -104,33 +119,45 @@ begin
     result => local_incr
   );
 
-  -- local_incr <= ("000000000" & DOPPLER) * DOP_FREQ_STEP; -- 17 bits integer + 15 bits fraction
-  local_incr_16 <= local_incr(17 downto 2); -- 3 + 13
-
-  INCR : process( clk, reset )
-  begin
-    if (reset = '1') then
-      local_input <= (others => '0');
-    elsif rising_edge(clk) then
-      if (local_input + local_incr_16) > FIXED_POINT_PI then
-        local_input <= local_input + local_incr_16 - FIXED_POINT_PI + FIXED_NEG_PI ;
-      else
-        local_input <= local_input + local_incr_16;
-      end if ;
-
-    end if ;
-  end process ; -- INCR
-
-
-  c0: altera_cordic
-  port map (
-    clk     => clk,
-    areset  => reset,
-    a       => local_input,
-    s       => sin_in,
-    c       => cos_in,
-    en      => "1"
+  reset_n <= not reset;
+  n0: nco
+  port map(
+    clk => clk,
+    reset_n => reset_n,
+    clken   => enable,
+    phi_inc_i => local_incr,
+    fsin_o => sin_in,
+    fcos_o => cos_in,
+    out_valid => open
   );
+
+  -- local_incr <= ("000000000" & DOPPLER) * DOP_FREQ_STEP; -- 17 bits integer + 15 bits fraction
+  -- local_incr_16 <= local_incr(17 downto 2); -- 3 + 13
+
+  -- INCR : process( clk, reset )
+  -- begin
+  --   if (reset = '1') then
+  --     local_input <= (others => '0');
+  --   elsif rising_edge(clk) then
+  --     if (local_input + local_incr_16) > FIXED_POINT_PI then
+  --       local_input <= local_input + local_incr_16 - FIXED_POINT_PI + FIXED_NEG_PI ;
+  --     else
+  --       local_input <= local_input + local_incr_16;
+  --     end if ;
+
+  --   end if ;
+  -- end process ; -- INCR
+
+
+  -- c0: altera_cordic
+  -- port map (
+  --   clk     => clk,
+  --   areset  => reset,
+  --   a       => local_input,
+  --   s       => sin_in,
+  --   c       => cos_in,
+  --   en      => "1"
+  -- );
 
   -- should modify to set boundry conditions
   dop_incr : process( clk, reset )
@@ -166,13 +193,24 @@ begin
     end if ;
   end process ; -- epoch_flags
 
+  end_flag : process( clk )
+  begin
+    if rising_edge(clk) then
+      if DOPPLER = 51 and epoch_abs = '1' then
+        complete <= '1';
+      else
+        complete <= '0';
+      end if ;
+    end if ;
+  end process ; -- end_flag
+
 
   -------------------- Different for each channel ------------------------------
 
   -- Sign extend
   SIGN_EXTEND: for i in 0 to 31 generate
-    i_out_16(i)(15 downto 13) <= (others => i_out_16(i)(12));
-    q_out_16(i)(15 downto 13) <= (others => q_out_16(i)(12));
+    i_out_16(i)(15 downto 12) <= (others => i_out_16(i)(11));
+    q_out_16(i)(15 downto 12) <= (others => q_out_16(i)(11));
   end generate;
 
   RP_GEN: for i in 0 to 31 generate
@@ -184,8 +222,8 @@ begin
         enable  => '1',
         SAT     => i,
         DOPPLER => DOPPLER,
-        i_out   => i_out_16(i)(12 downto 0),
-        q_out   => q_out_16(i)(12 downto 0),
+        i_out   => i_out_16(i)(11 downto 0),
+        q_out   => q_out_16(i)(11 downto 0),
         valid   => open,
         phase_period_epoch => phase_period_epoch,
         code_phase => code_phase,
@@ -203,8 +241,8 @@ begin
         enable  => '1',
         SAT     => i,
         DOPPLER => DOPPLER,
-        i_out   => i_out_16(i)(12 downto 0),
-        q_out   => q_out_16(i)(12 downto 0),
+        i_out   => i_out_16(i)(11 downto 0),
+        q_out   => q_out_16(i)(11 downto 0),
         valid   => open,
         phase_period_epoch => open,
         code_phase => open,
@@ -214,6 +252,8 @@ begin
       );
     end generate;
   end generate;
+
+  --mult_iq_in <= i_in when clk_div_2 = '1' else q_in;
   
   INPUT_MULT_I: for i in 0 to 31 generate
     mi0: altera_mult
@@ -234,8 +274,8 @@ begin
   end generate;
 
   MULT_SIMP: for i in 0 to 31 generate
-    mult_i_8(i) <= mult_i(i)(24 downto 17);
-    mult_q_8(i) <= mult_q(i)(24 downto 17);
+    mult_i_8(i) <= mult_i(i)(23 downto 16);
+    mult_q_8(i) <= mult_q(i)(23 downto 16);
   end generate;
   
   -- can be optimized with 1 multiplier
@@ -271,8 +311,8 @@ begin
   end generate;
 
   ACCUM_SIMP: for i in 0 to 31 generate
-    i_accum_8(i) <= i_accum(i)(15 downto 8); 
-    q_accum_8(i) <= q_accum(i)(15 downto 8);
+    i_accum_8(i) <= i_accum(i)(14 downto 7); 
+    q_accum_8(i) <= q_accum(i)(14 downto 7);
     --i_square(i)(15 downto 0)   <= i_accum_8(i) * i_accum_8(i);
     --q_square(i)(15 downto 0)   <= q_accum_8(i) * q_accum_8(i);
     --i_square(i)(31 downto 16)  <= (others => i_square(i)(15));
