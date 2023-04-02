@@ -1,15 +1,15 @@
-# system info nco on 2023.03.27.22:42:11
+# system info nco on 2023.03.28.00:04:34
 system_info:
 name,value
 DEVICE,5CEBA4F23C8
 DEVICE_FAMILY,Cyclone V
-GENERATION_ID,1679982131
+GENERATION_ID,1679987073
 #
 #
-# Files generated for nco on 2023.03.27.22:42:11
+# Files generated for nco on 2023.03.28.00:04:34
 files:
 filepath,kind,attributes,module,is_top
-simulation/nco.vhd,VHDL,,nco,true
+simulation/nco.v,VERILOG,,nco,true
 simulation/submodules/mentor/sid_2c_1p.v,VERILOG_ENCRYPT,MENTOR_SPECIFIC,nco_nco_ii_0,false
 simulation/submodules/aldec/sid_2c_1p.v,VERILOG_ENCRYPT,ALDEC_SPECIFIC,nco_nco_ii_0,false
 simulation/submodules/synopsys/sid_2c_1p.v,VERILOG_ENCRYPT,SYNOPSYS_SPECIFIC,nco_nco_ii_0,false

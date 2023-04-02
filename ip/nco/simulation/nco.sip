@@ -4,7 +4,7 @@ set_global_assignment -entity "nco" -library "lib_nco" -name IP_TOOL_ENV "Qsys"
 set_global_assignment -library "lib_nco" -name SPD_FILE [file join $::quartus(sip_path) "../nco.spd"]
 set_global_assignment -library "lib_nco" -name MISC_FILE [file join $::quartus(sip_path) "../../nco.qsys"]
 
-set_global_assignment -library "lib_nco" -name MISC_FILE [file join $::quartus(sip_path) "nco.vhd"]
+set_global_assignment -library "lib_nco" -name MISC_FILE [file join $::quartus(sip_path) "nco.v"]
 set_global_assignment -library "lib_nco" -name MISC_FILE [file join $::quartus(sip_path) "submodules/mentor/sid_2c_1p.v"]
 set_global_assignment -library "lib_nco" -name MISC_FILE [file join $::quartus(sip_path) "submodules/aldec/sid_2c_1p.v"]
 set_global_assignment -library "lib_nco" -name MISC_FILE [file join $::quartus(sip_path) "submodules/synopsys/sid_2c_1p.v"]

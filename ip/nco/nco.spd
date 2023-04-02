@@ -268,7 +268,7 @@
    path="simulation/submodules/c_model/nco_model.h"
    type="OTHER"
    library="nco_ii_0" />
- <file path="simulation/nco.vhd" type="VHDL" />
+ <file path="simulation/nco.v" type="VERILOG" />
  <topLevel name="nco" />
  <deviceFamily name="cyclonev" />
 </simPackage>

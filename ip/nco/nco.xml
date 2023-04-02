@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<deploy date="2023.03.27.22:42:14" outputDirectory="/home/tokiv5/ip/nco/">
+<deploy date="2023.03.28.00:04:36" outputDirectory="/home/tokiv5/ip/nco/">
  <perimeter>
   <parameter
      name="AUTO_GENERATION_ID"
@@ -76,13 +76,13 @@
  </perimeter>
  <entity
    path=""
-   parameterizationKey="nco:1.0:AUTO_CLK_CLOCK_DOMAIN=-1,AUTO_CLK_CLOCK_RATE=-1,AUTO_CLK_RESET_DOMAIN=-1,AUTO_DEVICE=5CEBA4F23C8,AUTO_DEVICE_FAMILY=Cyclone V,AUTO_DEVICE_SPEEDGRADE=8,AUTO_GENERATION_ID=1679982133,AUTO_UNIQUE_ID=(altera_nco_ii:17.1:apr=32,aprf=32,apri=16,aprp=16,arch=small_rom,cordic_arch=parallel,cycles_per_output=1,design_env=NATIVE,dpri=4,fmod_pipe=1,freq_out=0.001,fsamp=20.46,hyper_opt=false,hyper_opt_select=false,mpr=12,numba=1,numch=1,phi_inc=209920,pmod_pipe=1,real_freq_out=0.001,selected_device_family=Cyclone V,trig_cycles_per_output=1,use_dedicated_multipliers=true,want_dither=true,want_freq_mod=false,want_phase_mod=false,want_sin_and_cos=dual_output)"
+   parameterizationKey="nco:1.0:AUTO_CLK_CLOCK_DOMAIN=-1,AUTO_CLK_CLOCK_RATE=-1,AUTO_CLK_RESET_DOMAIN=-1,AUTO_DEVICE=5CEBA4F23C8,AUTO_DEVICE_FAMILY=Cyclone V,AUTO_DEVICE_SPEEDGRADE=8,AUTO_GENERATION_ID=1679987076,AUTO_UNIQUE_ID=(altera_nco_ii:17.1:apr=32,aprf=32,apri=16,aprp=16,arch=small_rom,cordic_arch=parallel,cycles_per_output=1,design_env=NATIVE,dpri=4,fmod_pipe=1,freq_out=0.001,fsamp=20.46,hyper_opt=false,hyper_opt_select=false,mpr=12,numba=1,numch=1,phi_inc=209920,pmod_pipe=1,real_freq_out=0.001,selected_device_family=Cyclone V,trig_cycles_per_output=1,use_dedicated_multipliers=true,want_dither=true,want_freq_mod=false,want_phase_mod=false,want_sin_and_cos=dual_output)"
    instancePathKey="nco"
    kind="nco"
    version="1.0"
    name="nco">
   <parameter name="AUTO_CLK_CLOCK_RATE" value="-1" />
-  <parameter name="AUTO_GENERATION_ID" value="1679982133" />
+  <parameter name="AUTO_GENERATION_ID" value="1679987076" />
   <parameter name="AUTO_DEVICE" value="5CEBA4F23C8" />
   <parameter name="AUTO_DEVICE_FAMILY" value="Cyclone V" />
   <parameter name="AUTO_CLK_RESET_DOMAIN" value="-1" />
@@ -90,7 +90,7 @@
   <parameter name="AUTO_UNIQUE_ID" value="" />
   <parameter name="AUTO_DEVICE_SPEEDGRADE" value="8" />
   <generatedFiles>
-   <file path="/home/tokiv5/ip/nco/synthesis/nco.vhd" type="VHDL" />
+   <file path="/home/tokiv5/ip/nco/synthesis/nco.v" type="VERILOG" />
   </generatedFiles>
   <childGeneratedFiles>
    <file

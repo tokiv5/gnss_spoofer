@@ -1,5 +1,5 @@
 Info: Starting: Create simulation model
-Info: qsys-generate /home/tokiv5/ip/nco.qsys --simulation=VHDL --allow-mixed-language-simulation --output-directory=/home/tokiv5/ip/nco/simulation --family="Cyclone V" --part=5CEBA4F23C8
+Info: qsys-generate /home/tokiv5/ip/nco.qsys --simulation=VERILOG --allow-mixed-language-simulation --output-directory=/home/tokiv5/ip/nco/simulation --family="Cyclone V" --part=5CEBA4F23C8
 Progress: Loading ip/nco.qsys
 Progress: Reading input file
 Progress: Adding nco_ii_0 [altera_nco_ii 17.1]
@@ -8,7 +8,7 @@ Progress: Building connections
 Progress: Parameterizing connections
 Progress: Validating
 Progress: Done reading input file
-Info: nco: Generating nco "nco" for SIM_VHDL
+Info: nco: Generating nco "nco" for SIM_VERILOG
 Info: nco_ii_0: "nco" instantiated altera_nco_ii "nco_ii_0"
 Info: nco: Done "nco" with 2 modules, 56 files
 Info: qsys-generate succeeded.
@@ -18,7 +18,8 @@ Info: sim-script-gen --spd=/home/tokiv5/ip/nco/nco.spd --output-directory=/home/
 Info: Doing: ip-make-simscript --spd=/home/tokiv5/ip/nco/nco.spd --output-directory=/home/tokiv5/ip/nco/simulation/ --use-relative-paths=true
 Info: Generating the following file(s) for MODELSIM simulator in /home/tokiv5/ip/nco/simulation/ directory:
 Info: 	mentor/msim_setup.tcl
-Info: Skipping VCS script generation since VHDL file $QUARTUS_INSTALL_DIR/eda/sim_lib/altera_syn_attributes.vhd is required for simulation
+Info: Generating the following file(s) for VCS simulator in /home/tokiv5/ip/nco/simulation/ directory:
+Info: 	synopsys/vcs/vcs_setup.sh
 Info: Generating the following file(s) for VCSMX simulator in /home/tokiv5/ip/nco/simulation/ directory:
 Info: 	synopsys/vcsmx/synopsys_sim.setup
 Info: 	synopsys/vcsmx/vcsmx_setup.sh
@@ -46,7 +47,7 @@ Info: qsys-generate succeeded.
 Info: Finished: Create block symbol file (.bsf)
 Info: 
 Info: Starting: Create HDL design files for synthesis
-Info: qsys-generate /home/tokiv5/ip/nco.qsys --synthesis=VHDL --output-directory=/home/tokiv5/ip/nco/synthesis --family="Cyclone V" --part=5CEBA4F23C8
+Info: qsys-generate /home/tokiv5/ip/nco.qsys --synthesis=VERILOG --output-directory=/home/tokiv5/ip/nco/synthesis --family="Cyclone V" --part=5CEBA4F23C8
 Progress: Loading ip/nco.qsys
 Progress: Reading input file
 Progress: Adding nco_ii_0 [altera_nco_ii 17.1]

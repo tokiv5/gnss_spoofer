@@ -10,16 +10,17 @@ entity transmitter_fsm is
     START       : IN  std_logic; -- start to load
     ENDING      : IN  std_logic; -- end to transmit
     update      : OUT std_logic; -- enable signal for updating nco frequency code offset
-    update_cnt  : integer range 0 to 4
+    enable      : OUT std_logic; -- NCO enable to transmit
+    update_cnt  : OUT integer range 0 to 4
   ) ;
 end transmitter_fsm;
 
 architecture arch of transmitter_fsm is
   type state_type is (IDLE, LOAD, TRANSMIT);
   signal present_state, next_state: state_type;
-  signal cnt : integer 0 to 4;
+  signal cnt : integer range 0 to 4;
 begin
-  updata_cnt <= cnt;
+  update_cnt <= cnt;
   state_process : process( clk, reset )
   begin
     if reset = '1' then
@@ -29,26 +30,29 @@ begin
     end if ;
   end process ; -- p0
 
-  fsm : process( present_state, cnt )
+  fsm : process( present_state, cnt, START, ENDING )
   begin
     -- next_state <= present_state;
     case( present_state ) is
       when IDLE =>
-        updata <= '0';
+        update <= '0';
+        enable <= '0';
         if START = '1' then
           next_state <= LOAD;
         else
           next_state <= IDLE;
         end if ;
       when LOAD => 
-        updata <= '1';
+        update <= '1';
+        enable <= '0';
         if cnt = 4 then
           next_state <= TRANSMIT;
         else
           next_state <= LOAD;
         end if ;
       when TRANSMIT =>
-        updata <= '0';
+        update <= '0';
+        enable <= '1';
         if ENDING = '1' then
           next_state <= IDLE;
         else
