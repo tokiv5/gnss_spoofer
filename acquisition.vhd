@@ -12,10 +12,10 @@ entity acquisition is
     q_in        : IN BLADERF_T;
     detectedSAT : OUT std_logic_vector(31 downto 0);
     complete    : OUT std_logic;
-    enable      : IN std_logic;
-    INCR_SAT    : OUT INCR_SAT_T;
-    phaseSAT    : OUT CODE_SAT_T;
-    max_acc_out : OUT ACQ_RESULT
+    enable      : IN std_logic
+    --INCR_SAT    : OUT INCR_SAT_T;
+    --phaseSAT    : OUT CODE_SAT_T;
+    --max_acc_out : OUT ACQ_RESULT
   ) ;
 end acquisition;
 
@@ -109,9 +109,9 @@ architecture arch of acquisition is
 begin
   -------------------- Common for all channels ------------------------------
   --dopplerSAT  <=  dopplers;
-  phaseSAT    <=  phases;
-  INCR_SAT    <=  max_freq_incr;
-  max_acc_out <=  max_accum;
+  -- phaseSAT    <=  phases;
+  -- INCR_SAT    <=  max_freq_incr;
+  -- max_acc_out <=  max_accum;
 
   doppler_extend(7 downto 0) <= DOPPLER & '0'; -- STEP is not enough in 16 bits if use 200 hz so half step and double doppler instead 
   doppler_extend(15 downto 8) <= (others => DOPPLER(6));
@@ -261,8 +261,24 @@ begin
 
   mult_iq_in    <= i_in     when clk_div_2 = '1' else q_in;
   mult_local_in <= i_out_16 when clk_div_2 = '1' else q_out_16;
-  mult_i        <= mult_res when clk_div_2 = '1' else mult_i;
-  mult_q        <= mult_res when clk_div_2 = '0' else mult_q;
+  mult_update : process( clk, reset )
+  begin
+    if reset = '1' then
+      mult_i <= (others => (others => '0'));
+      mult_q <= (others => (others => '0'));
+    elsif rising_edge(clk) then
+      if enable  = '1' then
+        if clk_div_2 = '1' then
+          mult_i <= mult_res;
+        else
+          mult_q <= mult_res;
+        end if ;
+      end if ;
+    end if ;
+  end process ; -- mult_update
+  --mult_i        <= mult_res when clk_div_2 = '1' else mult_i;
+  --mult_q        <= mult_res when clk_div_2 = '0' else mult_q;
+
   INPUT_MULT: for i in 0 to 31 generate
     mi0: altera_mult
     port map (
@@ -299,7 +315,7 @@ begin
         if clk_div_2 = '0' and enable = '1' then
           --mult_i(i) <= i_in * i_out_16(i);
           --mult_q(i) <= q_in * q_out_16(i);
-          if epoch_accum = '1' then
+          if epoch_abs = '1' then
             i_accum(i)(7 downto 0)   <= mult_i_8(i);
             i_accum(i)(17 downto 8)  <= (others => mult_i_8(i)(7));
             q_accum(i)(7 downto 0)   <= mult_q_8(i);
@@ -328,8 +344,23 @@ begin
   end generate;
 
   iq_accum_8 <= i_accum_8 when clk_div_2 = '1' else q_accum_8;
-  i_square   <= iq_square when clk_div_2 = '1' else i_square;
-  q_square   <= iq_square when clk_div_2 = '0' else q_square;
+  SQ_update : process( clk, reset )
+  begin
+    if reset = '1' then
+      i_square <= (others => (others => '0'));
+      q_square <= (others => (others => '0'));
+    elsif rising_edge(clk) then
+      if enable  = '1' then
+        if clk_div_2 = '1' then
+          i_square <= iq_square;
+        else
+          q_square <= iq_square;
+        end if ;
+      end if ;
+    end if ;
+  end process ; -- SQ_update
+  --i_square   <= iq_square when clk_div_2 = '1' else i_square;
+  --q_square   <= iq_square when clk_div_2 = '0' else q_square;
 
   SQUARE_I: for i in 0 to 31 generate
     s0: altera_square
