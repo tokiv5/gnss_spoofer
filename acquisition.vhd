@@ -12,7 +12,7 @@ entity acquisition is
     q_in        : IN BLADERF_T;
     detectedSAT : OUT std_logic_vector(31 downto 0);
     complete    : OUT std_logic;
-    enable      : IN std_logic
+    enable      : IN std_logic;
     INCR_SAT    : OUT INCR_SAT_T;
     phaseSAT    : OUT CODE_SAT_T;
     max_acc_out : OUT ACQ_RESULT
