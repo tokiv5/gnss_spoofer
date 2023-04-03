@@ -23,7 +23,7 @@ module acqusition_tb ();
     $display("File1 descriptor is: %h.", fd );//non-0
     $display("Error1 number is: %h.", err );  //0
     $display("Error2 info is: %s.", str );    //0
-    #8
+    #3
     rst = 0;
     // # 500
     // $fclose(fd) ;

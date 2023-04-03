@@ -13,8 +13,9 @@ entity acquisition is
     detectedSAT : OUT std_logic_vector(31 downto 0);
     complete    : OUT std_logic;
     enable      : IN std_logic
-    --dopplerSAT  : OUT DOPPLER_SAT_T;
-    --phaseSAT    : OUT CODE_SAT_T
+    INCR_SAT    : OUT INCR_SAT_T;
+    phaseSAT    : OUT CODE_SAT_T;
+    max_acc_out : OUT ACQ_RESULT
   ) ;
 end acquisition;
 
@@ -25,6 +26,7 @@ architecture arch of acquisition is
   signal local_input   : std_logic_vector(15 downto 0); -- 3 integer bits + 13 fraction bits
   signal local_incr    : std_logic_vector(31 downto 0);
   signal local_incr_16 : std_logic_vector(15 downto 0);
+  signal max_freq_incr : INCR_SAT_T;
 
   signal sin_in             : BLADERF_AD_T; -- 2 integer bits + 11 fraction bits
   signal cos_in             : BLADERF_AD_T;
@@ -32,19 +34,19 @@ architecture arch of acquisition is
   signal i_out_16, q_out_16, mult_local_in    : BLADERF_SAT_T; --  local replica signals
   
   signal mult_i, mult_q, mult_res             : MULT_RESULT; -- i_local 5+11(2+11) i_in 5+11(1+11) mult 10+22(3+22) -- i-square = i_acc_16*i_acc_16
-  signal i_square, q_square                   : BLADERF_SAT_T;
+  signal i_square, q_square, iq_square        : BLADERF_SAT_T;
   signal i_accum, q_accum                     : ACCUM_RESULT;
   signal i_accum_16, q_accum_16               : BLADERF_SAT_T;
   signal mult_i_8, mult_q_8                   : SIMP_SAT_T;
-  signal i_accum_8, q_accum_8                 : SIMP_SAT_T;
+  signal i_accum_8, q_accum_8, iq_accum_8     : SIMP_SAT_T;
   signal max_accum, iq_accum, second_max      : ACQ_RESULT;
 
   signal epoch, epoch_accum, epoch_abs           : std_logic;
   signal phase_period_epoch                      : std_logic;
   signal code_phase                              : CODE_PHASE_T;  
 
-  signal dopplers, dopplerSAT  : DOPPLER_SAT_T;
-  signal phases, phaseSAT      : CODE_SAT_T;
+  -- signal dopplers, dopplerSAT  : DOPPLER_SAT_T;
+  signal phases     : CODE_SAT_T;
   signal reset_n : std_logic;
 
   component replica_generator
@@ -106,10 +108,12 @@ architecture arch of acquisition is
 	end component nco;
 begin
   -------------------- Common for all channels ------------------------------
-  dopplerSAT  <=  dopplers;
+  --dopplerSAT  <=  dopplers;
   phaseSAT    <=  phases;
+  INCR_SAT    <=  max_freq_incr;
+  max_acc_out <=  max_accum;
 
-  doppler_extend(7 downto 0) <= DOPPLER & '0';
+  doppler_extend(7 downto 0) <= DOPPLER & '0'; -- STEP is not enough in 16 bits if use 200 hz so half step and double doppler instead 
   doppler_extend(15 downto 8) <= (others => DOPPLER(6));
 
   m0: altera_mult
@@ -166,7 +170,7 @@ begin
       DOPPLER <= conv_std_logic_vector(10,7);
       DOPPLER_reg <= conv_std_logic_vector(10,7);
     elsif rising_edge(clk) then
-      if phase_period_epoch = '1' then
+      if phase_period_epoch = '1' and enable = '1'then
         DOPPLER <= DOPPLER_reg;
         DOPPLER_reg <= DOPPLER + 1;
       end if ;
@@ -178,14 +182,16 @@ begin
     if reset = '1' then
       clk_div_2 <= '0';
     elsif rising_edge(clk) then
-      clk_div_2 <= not clk_div_2;
+      if enable = '1' then
+        clk_div_2 <= not clk_div_2;
+      end if ;
     end if ;
   end process ; -- clk_div
 
   epoch_flags : process( clk )
   begin
     if rising_edge(clk) then
-      if clk_div_2 = '0' then
+      if clk_div_2 = '0' and enable = '1' then
         epoch_accum <= epoch;
         epoch_abs   <= epoch_accum;        
       end if ;
@@ -196,7 +202,7 @@ begin
   end_flag : process( clk )
   begin
     if rising_edge(clk) then
-      if DOPPLER = 51 and epoch_abs = '1' then
+      if DOPPLER = 51 and epoch_abs = '1' and enable = '1' then
         complete <= '1';
       else
         complete <= '0';
@@ -219,7 +225,7 @@ begin
       port map (
         clk     => clk,
         reset   => reset,
-        enable  => '1',
+        enable  => enable,
         SAT     => i,
         DOPPLER => DOPPLER,
         i_out   => i_out_16(i)(11 downto 0),
@@ -238,7 +244,7 @@ begin
       port map (
         clk     => clk,
         reset   => reset,
-        enable  => '1',
+        enable  => enable,
         SAT     => i,
         DOPPLER => DOPPLER,
         i_out   => i_out_16(i)(11 downto 0),
@@ -253,25 +259,27 @@ begin
     end generate;
   end generate;
 
-  --mult_iq_in <= i_in when clk_div_2 = '1' else q_in;
-  
-  INPUT_MULT_I: for i in 0 to 31 generate
+  mult_iq_in    <= i_in     when clk_div_2 = '1' else q_in;
+  mult_local_in <= i_out_16 when clk_div_2 = '1' else q_out_16;
+  mult_i        <= mult_res when clk_div_2 = '1' else mult_i;
+  mult_q        <= mult_res when clk_div_2 = '0' else mult_q;
+  INPUT_MULT: for i in 0 to 31 generate
     mi0: altera_mult
     port map (
-      dataa => i_in,
-      datab => i_out_16(i),
-      result => mult_i(i)
+      dataa => mult_iq_in,
+      datab => mult_local_in(i),
+      result => mult_res(i)
     );
   end generate;
 
-  INPUT_MULT_Q: for i in 0 to 31 generate
-    mq0: altera_mult
-    port map (
-      dataa => q_in,
-      datab => q_out_16(i),
-      result => mult_q(i)
-    );
-  end generate;
+  -- INPUT_MULT_Q: for i in 0 to 31 generate
+  --   mq0: altera_mult
+  --   port map (
+  --     dataa => q_in,
+  --     datab => q_out_16(i),
+  --     result => mult_q(i)
+  --   );
+  -- end generate;
 
   MULT_SIMP: for i in 0 to 31 generate
     mult_i_8(i) <= mult_i(i)(23 downto 16);
@@ -288,7 +296,7 @@ begin
         i_accum(i) <= (others => '0');
         q_accum(i) <= (others => '0');
       elsif rising_edge(clk) then
-        if clk_div_2 = '0' then
+        if clk_div_2 = '0' and enable = '1' then
           --mult_i(i) <= i_in * i_out_16(i);
           --mult_q(i) <= q_in * q_out_16(i);
           if epoch_accum = '1' then
@@ -300,40 +308,44 @@ begin
             i_accum(i) <= i_accum(i) + mult_i_8(i);
             q_accum(i) <= q_accum(i) + mult_q_8(i);
           end if ;
-        else
+        --else
           --mult_i(i) <= mult_i(i);
           --mult_q(i) <= mult_q(i);
-          i_accum(i) <= i_accum(i);
-          q_accum(i) <= q_accum(i);
+          --i_accum(i) <= i_accum(i);
+          --q_accum(i) <= q_accum(i);
         end if ;
       end if ;
     end process ; -- iq_accumulation
   end generate;
 
   ACCUM_SIMP: for i in 0 to 31 generate
-    i_accum_8(i) <= i_accum(i)(14 downto 7); 
-    q_accum_8(i) <= q_accum(i)(14 downto 7);
+    i_accum_8(i) <= i_accum(i)(15 downto 8); 
+    q_accum_8(i) <= q_accum(i)(15 downto 8);
     --i_square(i)(15 downto 0)   <= i_accum_8(i) * i_accum_8(i);
     --q_square(i)(15 downto 0)   <= q_accum_8(i) * q_accum_8(i);
     --i_square(i)(31 downto 16)  <= (others => i_square(i)(15));
     --q_square(i)(31 downto 16)  <= (others => q_square(i)(15));
   end generate;
 
+  iq_accum_8 <= i_accum_8 when clk_div_2 = '1' else q_accum_8;
+  i_square   <= iq_square when clk_div_2 = '1' else i_square;
+  q_square   <= iq_square when clk_div_2 = '0' else q_square;
+
   SQUARE_I: for i in 0 to 31 generate
     s0: altera_square
     port map(
-      dataa => i_accum_8(i),
-      result => i_square(i)
+      dataa => iq_accum_8(i),
+      result => iq_square(i)
     );
   end generate;
 
-  SQUARE_Q: for i in 0 to 31 generate
-    s1: altera_square
-    port map(
-      dataa => q_accum_8(i),
-      result => q_square(i)
-    );
-  end generate;
+  -- SQUARE_Q: for i in 0 to 31 generate
+  --   s1: altera_square
+  --   port map(
+  --     dataa => q_accum_8(i),
+  --     result => q_square(i)
+  --   );
+  -- end generate;
 
 
   -- ACCUM_SIMP: for i in 0 to 31 generate
@@ -351,29 +363,31 @@ begin
         max_accum(i) <= (others => '0');
         second_max(i) <= (others => '0');
       elsif rising_edge(clk) then
-        if clk_div_2 = '0' then
+        if clk_div_2 = '0' and enable = '1' then
           iq_accum(i) <= ("0" & i_square(i)) + ("0" & q_square(i)); -- Square result must be positive
-        else
-          iq_accum(i) <= iq_accum(i);
+        -- else
+        --   iq_accum(i) <= iq_accum(i);
         end if ;
-        if epoch_abs = '1' and iq_accum(i) > max_accum(i) then
+        if epoch_abs = '1' and iq_accum(i) > max_accum(i) and enable = '1' then
           max_accum(i) <= iq_accum(i);
           second_max(i)<= max_accum(i);
           -- Actual recorded doppler is last doppler but not the one now
           -- Actual recorded code phase is always the last
           if code_phase = 0 then
-            dopplers(i) <= DOPPLER - 1;
-            phases(i)   <= conv_std_logic_vector(1022, 10);
+            -- dopplers(i) <= DOPPLER - 1;
+            max_freq_incr(i) <= local_incr - DOP_FREQ_STEP - DOP_FREQ_STEP;
+            phases(i)        <= conv_std_logic_vector(1022, 10);
           else
-            dopplers(i)  <= DOPPLER;
-            phases(i)    <= code_phase - 1;
+            -- dopplers(i)  <= DOPPLER;
+            max_freq_incr(i) <= local_incr;
+            phases(i)        <= code_phase - 1;
           end if ;
 
-        else
-          max_accum(i) <= max_accum(i);
-          second_max(i)<= second_max(i);
-          dopplers(i)  <= dopplers(i);
-          phases(i)    <= phases(i);
+        -- else
+        --   max_accum(i) <= max_accum(i);
+        --   second_max(i)<= second_max(i);
+        --   dopplers(i)  <= dopplers(i);
+        --   phases(i)    <= phases(i);
         end if ;
         
       end if ;

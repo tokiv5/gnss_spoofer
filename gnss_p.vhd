@@ -14,6 +14,7 @@ package gnss_p is
   subtype SAT_T         is integer range 0 to 31;
   type SIMP_SAT_T       is array(31 downto 0) of SIMP_T;
   type BLADERF_SAT_T    is array(31 downto 0) of BLADERF_T; -- Used in acquisition channels, 5 channels in total
+  type INCR_SAT_T       is array(31 downto 0) of RAM_WIDTH_T;
   type BLADERF_OUTPUT_T is array(4 downto 0) of BLADERF_T; -- Used in output channels, 5 channels in total
   type BLADERF_AD_OUTPUT_T is array(4 downto 0) of BLADERF_AD_T;
   type INCR_OUTPUT_T    is array(4 downto 0) of RAM_WIDTH_T ;
