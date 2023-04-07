@@ -48,7 +48,7 @@ begin
         if complete_receive = '1' then
           next_state <= SAVE;
         else
-          next_state <= LOAD;
+          next_state <= RECEIVE;
         end if ;
       when SAVE =>
         update <= '1';
