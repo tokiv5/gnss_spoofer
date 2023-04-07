@@ -81,6 +81,9 @@ architecture arch of acquisition is
 	-- end component altera_cordic;
 
   component ROM_CA_generator is
+    generic(
+      START_PHASE : integer range 0 to 1022 := 0
+    );
     port (
       clk                : IN std_logic;
       reset              : IN std_logic;
@@ -225,6 +228,9 @@ begin
   end process ; -- end_flag
 
   CA_GEN: ROM_CA_generator
+  generic map(
+    START_PHASE       => 514
+  )
   port map(
     clk                => clk,
     reset              => reset,

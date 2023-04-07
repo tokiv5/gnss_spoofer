@@ -5,6 +5,9 @@ use IEEE.std_logic_arith.all;
 use work.gnss_p.all;
 
 entity ROM_CA_generator is
+  generic(
+    START_PHASE : integer range 0 to 1022 := 0
+  );
   port (
     clk                : IN std_logic;
     reset              : IN std_logic;
@@ -52,7 +55,7 @@ begin
     if (reset = '1') then
       local_timer <= 0;
       code_count <= (others => '0');
-      code_phase <= conv_std_logic_vector(514, 10);
+      code_phase <= conv_std_logic_vector(START_PHASE, 10);
 
     elsif rising_edge(clk) then
       if enable = '1' then
@@ -77,7 +80,11 @@ begin
           local_timer <= local_timer + 1;
           phase_period_epoch <= '0';
           epoch <= '0';
-        end if ;        
+        end if ;  
+      else
+        local_timer <= 0;
+        code_count <= (others => '0');
+        code_phase <= conv_std_logic_vector(START_PHASE, 10);     
       end if ;
     end if ;
   end process ; -- timer
