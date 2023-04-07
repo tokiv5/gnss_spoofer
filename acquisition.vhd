@@ -12,10 +12,10 @@ entity acquisition is
     q_in        : IN BLADERF_T;
     detectedSAT : OUT std_logic_vector(31 downto 0);
     complete    : OUT std_logic;
-    enable      : IN std_logic
-    --INCR_SAT    : OUT INCR_SAT_T;
-    --phaseSAT    : OUT CODE_SAT_T;
-    --max_acc_out : OUT ACQ_RESULT
+    enable      : IN std_logic;
+    INCR_SAT    : OUT INCR_SAT_T;
+    phaseSAT    : OUT CODE_SAT_T;
+    max_acc_out : OUT ACQ_RESULT
   ) ;
 end acquisition;
 
@@ -49,23 +49,25 @@ architecture arch of acquisition is
   signal phases     : CODE_SAT_T;
   signal reset_n : std_logic;
 
-  component replica_generator
-    port (
-      clk                : IN  std_logic;
-      reset              : IN  std_logic;
-      enable             : IN  std_logic;
-      SAT                : IN  integer range 0 to 31;
-      DOPPLER            : IN  DOPPLER_T;
-      i_out              : OUT BLADERF_AD_T;
-      q_out              : OUT BLADERF_AD_T;
-      valid              : OUT std_logic;
-      phase_period_epoch : out std_logic; -- 1023 phase big loop completion flag
-      code_phase         : OUT CODE_PHASE_T;
-      sin_in             : IN BLADERF_AD_T;
-      cos_in             : IN BLADERF_AD_T;
-      epoch              : OUT std_logic -- show that 1023 chips go over
-    ) ;
-  end component;
+  signal PRN     : std_logic_vector(31 downto 0);
+
+  -- component replica_generator
+  --   port (
+  --     clk                : IN  std_logic;
+  --     reset              : IN  std_logic;
+  --     enable             : IN  std_logic;
+  --     SAT                : IN  integer range 0 to 31;
+  --     DOPPLER            : IN  DOPPLER_T;
+  --     i_out              : OUT BLADERF_AD_T;
+  --     q_out              : OUT BLADERF_AD_T;
+  --     valid              : OUT std_logic;
+  --     phase_period_epoch : out std_logic; -- 1023 phase big loop completion flag
+  --     code_phase         : OUT CODE_PHASE_T;
+  --     sin_in             : IN BLADERF_AD_T;
+  --     cos_in             : IN BLADERF_AD_T;
+  --     epoch              : OUT std_logic -- show that 1023 chips go over
+  --   ) ;
+  -- end component;
 
   -- component altera_cordic is
 	-- 	port (
@@ -77,6 +79,18 @@ architecture arch of acquisition is
 	-- 		en     : in  std_logic_vector(0 downto 0)  := (others => 'X')  -- en
 	-- 	);
 	-- end component altera_cordic;
+
+  component ROM_CA_generator is
+    port (
+      clk                : IN std_logic;
+      reset              : IN std_logic;
+      PRN                : OUT std_logic_vector(31 downto 0);
+      enable             : IN std_logic;
+      code_phase_out     : OUT CODE_PHASE_T;
+      epoch              : OUT std_logic;
+      phase_period_epoch : OUT std_logic
+    ) ;
+  end component;
 
   component altera_mult
 	PORT
@@ -109,9 +123,9 @@ architecture arch of acquisition is
 begin
   -------------------- Common for all channels ------------------------------
   --dopplerSAT  <=  dopplers;
-  -- phaseSAT    <=  phases;
-  -- INCR_SAT    <=  max_freq_incr;
-  -- max_acc_out <=  max_accum;
+  phaseSAT    <=  phases;
+  INCR_SAT    <=  max_freq_incr;
+  max_acc_out <=  max_accum;
 
   doppler_extend(7 downto 0) <= DOPPLER & '0'; -- STEP is not enough in 16 bits if use 200 hz so half step and double doppler instead 
   doppler_extend(15 downto 8) <= (others => DOPPLER(6));
@@ -210,54 +224,67 @@ begin
     end if ;
   end process ; -- end_flag
 
+  CA_GEN: ROM_CA_generator
+  port map(
+    clk                => clk,
+    reset              => reset,
+    PRN                => PRN,
+    enable             => enable,
+    code_phase_out     => code_phase,
+    epoch              => epoch,
+    phase_period_epoch => phase_period_epoch
+  );
+
 
   -------------------- Different for each channel ------------------------------
 
   -- Sign extend
   SIGN_EXTEND: for i in 0 to 31 generate
+    i_out_16(i)(11 downto 0)  <= sin_in when PRN(i) = '1' else ((not sin_in) + 1);
+    q_out_16(i)(11 downto 0)  <= cos_in when PRN(i) = '1' else ((not cos_in) + 1);
     i_out_16(i)(15 downto 12) <= (others => i_out_16(i)(11));
     q_out_16(i)(15 downto 12) <= (others => q_out_16(i)(11));
   end generate;
 
-  RP_GEN: for i in 0 to 31 generate
-    i0: if i = 0 generate
-      r0: replica_generator
-      port map (
-        clk     => clk,
-        reset   => reset,
-        enable  => enable,
-        SAT     => i,
-        DOPPLER => DOPPLER,
-        i_out   => i_out_16(i)(11 downto 0),
-        q_out   => q_out_16(i)(11 downto 0),
-        valid   => open,
-        phase_period_epoch => phase_period_epoch,
-        code_phase => code_phase,
-        sin_in  => sin_in,
-        cos_in  => cos_in,
-        epoch   => epoch
-      );
-    end generate;
+  -- RP_GEN: for i in 0 to 31 generate
+  --   i0: if i = 0 generate
+  --     r0: replica_generator
+  --     port map (
+  --       clk     => clk,
+  --       reset   => reset,
+  --       enable  => enable,
+  --       SAT     => i,
+  --       DOPPLER => DOPPLER,
+  --       i_out   => i_out_16(i)(11 downto 0),
+  --       q_out   => q_out_16(i)(11 downto 0),
+  --       valid   => open,
+  --       phase_period_epoch => phase_period_epoch,
+  --       code_phase => code_phase,
+  --       sin_in  => sin_in,
+  --       cos_in  => cos_in,
+  --       epoch   => epoch
+  --     );
+  --   end generate;
 
-    ie: if i > 0 generate
-      r0: replica_generator
-      port map (
-        clk     => clk,
-        reset   => reset,
-        enable  => enable,
-        SAT     => i,
-        DOPPLER => DOPPLER,
-        i_out   => i_out_16(i)(11 downto 0),
-        q_out   => q_out_16(i)(11 downto 0),
-        valid   => open,
-        phase_period_epoch => open,
-        code_phase => open,
-        sin_in  => sin_in,
-        cos_in  => cos_in,
-        epoch   => open
-      );
-    end generate;
-  end generate;
+  --   ie: if i > 0 generate
+  --     r0: replica_generator
+  --     port map (
+  --       clk     => clk,
+  --       reset   => reset,
+  --       enable  => enable,
+  --       SAT     => i,
+  --       DOPPLER => DOPPLER,
+  --       i_out   => i_out_16(i)(11 downto 0),
+  --       q_out   => q_out_16(i)(11 downto 0),
+  --       valid   => open,
+  --       phase_period_epoch => open,
+  --       code_phase => open,
+  --       sin_in  => sin_in,
+  --       cos_in  => cos_in,
+  --       epoch   => open
+  --     );
+  --   end generate;
+  -- end generate;
 
   mult_iq_in    <= i_in     when clk_div_2 = '1' else q_in;
   mult_local_in <= i_out_16 when clk_div_2 = '1' else q_out_16;
