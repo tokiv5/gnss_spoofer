@@ -26,10 +26,12 @@ architecture arch of acquisition_save is
 
   signal choose_cnt : integer range 0 to 31;
   signal save_cnt   : integer range 0 to 4;
+  signal complete_in: std_logic;
   -- type   chosenSAT  is array(4 downto 0) of integer range 0 to 31;
 
 begin
   -- data_b(31 downto 15) <= (others => '0');
+  complete <= complete_in;
   chooseSAT : process( clk, reset )
   begin
     if reset = '1' then
@@ -38,15 +40,16 @@ begin
       data_a     <= (others => '0');
       data_b     <= (others => '0');
       wren       <= '0';
-      complete   <= '0';
+      complete_in<= '0';
+      address    <= (others => '0');
     elsif rising_edge(clk) then
-      if update = '1' then
+      if update = '1' and complete_in = '0' then
         if choose_cnt = 31 then
           choose_cnt <= 0;
-          complete   <= '1';
+          complete_in<= '1';
         else
           choose_cnt <= choose_cnt + 1;
-          complete   <= '0';
+          complete_in<= '0';
         end if ;
         
         if detectedSAT(choose_cnt) = '1' then
@@ -71,7 +74,7 @@ begin
         data_a     <= (others => '0');
         data_b     <= (others => '0');
         wren       <= '0';
-        complete   <= '0';
+        complete_in<= '0';
       end if ;
     end if ;
   end process ; 

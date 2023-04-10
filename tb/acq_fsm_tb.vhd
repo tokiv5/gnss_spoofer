@@ -16,7 +16,8 @@ architecture arch of acq_fsm_tb is
   signal data_a, data_b: RAM_WIDTH_T;
   signal INCR_SAT : INCR_SAT_T := (others => (others => '1'));
   signal phaseSAT : CODE_SAT_T := (others => (others => '1'));
-  signal detectedSAT: std_logic_vector := (others => '1');
+  signal detectedSAT: std_logic_vector(31 downto 0) := "01001011001101010000110100101001";
+  signal wren     : std_logic;
 
   component acquisition_fsm
     port (
@@ -35,7 +36,7 @@ architecture arch of acq_fsm_tb is
       clk         : IN std_logic;
       reset       : IN std_logic;
       address     : OUT RAM_DEPTH_T;
-      wren        : IN std_logic;
+      wren        : OUT std_logic;
       --address_b   : OUT RAM_DEPTH_T;
       data_a      : OUT RAM_WIDTH_T;
       data_b      : OUT RAM_WIDTH_T;
@@ -44,7 +45,7 @@ architecture arch of acq_fsm_tb is
       INCR_SAT    : IN INCR_SAT_T;
       phaseSAT    : IN CODE_SAT_T;
       --max_acc_out : IN ACQ_RESULT;
-      detectedSAT : IN std_logic_vector(31 downto 0);
+      detectedSAT : IN std_logic_vector(31 downto 0)
     ) ;
   end component;
 begin
@@ -63,8 +64,8 @@ begin
 
   clk <= not clk after 5 ns;
   reset <= '1' after 1 ns, '0' after 2 ns;
-  START <= '1' after 6 ns;
-  complete_receive <= '1' after 26 ns;
+  START <= '1' after 6 ns, '0' after 16 ns, '1' after 550 ns;
+  complete_receive <= '1' after 26 ns, '0' after 36 ns, '1' after 580 ns;
 
   f0: acquisition_fsm
   port map(
@@ -85,7 +86,7 @@ begin
     wren => wren,
     data_a => data_a,
     data_b => data_b,
-    update => updatee,
+    update => update,
     complete => complete_save,
     INCR_SAT => INCR_SAT,
     phaseSAT => phaseSAT,
