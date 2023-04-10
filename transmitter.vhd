@@ -10,8 +10,7 @@ entity transmitter is
     reset       : IN std_logic;
     START       : IN  std_logic; -- start to load
     ENDING      : IN  std_logic; -- end to transmit
-    addressa    : OUT RAM_DEPTH_T;
-    addressb    : OUT RAM_DEPTH_T;
+    address     : OUT RAM_DEPTH_T;
     incr        : IN  RAM_WIDTH_T;
     prn_phase   : IN  RAM_WIDTH_T;
     signal_out_i: OUT BLADERF_OUTPUT_T;
@@ -43,8 +42,7 @@ architecture arch of transmitter is
       enable      : IN std_logic;
       update      : IN std_logic;
       update_cnt  : IN integer range 0 to 4;
-      addressa    : OUT RAM_DEPTH_T;
-      addressb    : OUT RAM_DEPTH_T;
+      address     : OUT RAM_DEPTH_T;
       incr        : IN  RAM_WIDTH_T;
       prn_phase   : IN  RAM_WIDTH_T;
       signal_out_i: OUT BLADERF_OUTPUT_T;
@@ -70,8 +68,7 @@ begin
     enable       => enable,
     update       => update, 
     update_cnt   => update_cnt,
-    addressa     => addressa,
-    addressb     => addressb,
+    address      => address,
     incr         => incr,
     prn_phase    => prn_phase,
     signal_out_i => signal_out_i,

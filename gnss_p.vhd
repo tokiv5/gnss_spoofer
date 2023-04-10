@@ -11,6 +11,7 @@ package gnss_p is
   subtype SIMP_T         is std_logic_vector(7 downto 0); -- Half of Bladerf 16 bits to save resource
   subtype RAM_WIDTH_T    is std_logic_vector(31 downto 0);
   subtype RAM_DEPTH_T    is std_logic_vector(3 downto 0);
+  subtype PRN_T          is std_logic_vector(31 downto 0);
   subtype SAT_T         is integer range 0 to 31;
   type SIMP_SAT_T       is array(31 downto 0) of SIMP_T;
   type BLADERF_SAT_T    is array(31 downto 0) of BLADERF_T; -- Used in acquisition channels, 5 channels in total
@@ -18,6 +19,7 @@ package gnss_p is
   type BLADERF_OUTPUT_T is array(4 downto 0) of BLADERF_T; -- Used in output channels, 5 channels in total
   type BLADERF_AD_OUTPUT_T is array(4 downto 0) of BLADERF_AD_T;
   type INCR_OUTPUT_T    is array(4 downto 0) of RAM_WIDTH_T ;
+  type CA_OUTPUT_T      is array(4 downto 0) of PRN_T;
   type PHASE_OUTPUT_T   is array(4 downto 0) of CODE_PHASE_T;
   type SAT_OUTPUT_T     is array(4 downto 0) of SAT_T;
   type DOPPLER_SAT_T    is array(31 downto 0) of DOPPLER_T;

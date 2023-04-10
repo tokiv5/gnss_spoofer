@@ -11,8 +11,7 @@ entity transmitter_gen is
     enable      : IN std_logic;
     update      : IN std_logic;
     update_cnt  : IN integer range 0 to 4;
-    addressa    : OUT RAM_DEPTH_T;
-    addressb    : OUT RAM_DEPTH_T;
+    address     : OUT RAM_DEPTH_T;
     incr        : IN  RAM_WIDTH_T;
     prn_phase   : IN  RAM_WIDTH_T;
     signal_out_i: OUT BLADERF_OUTPUT_T;
@@ -23,8 +22,7 @@ end transmitter_gen;
 architecture arch of transmitter_gen is
 
   signal incr_channels   : INCR_OUTPUT_T; -- Increment values from ram
-  signal phase_channels_1: PHASE_OUTPUT_T; -- 5 + 10 + 10 saved in ram
-  signal phase_channels_2: PHASE_OUTPUT_T;
+  signal phase_channels  : PHASE_OUTPUT_T; -- 1 + 5 + 10 saved in ram
   signal prn_channels    : SAT_OUTPUT_T;
   signal sin_out         : BLADERF_OUTPUT_T;
   signal cos_out         : BLADERF_OUTPUT_T;
@@ -35,6 +33,8 @@ architecture arch of transmitter_gen is
 
   signal rst_n : std_logic;
   signal addressa_inner  : RAM_DEPTH_T;
+
+  signal CA_channels     : CA_OUTPUT_T;
   component nco is
 		port (
 			clk       : in  std_logic                     := 'X';             -- clk
@@ -46,9 +46,24 @@ architecture arch of transmitter_gen is
 			out_valid : out std_logic                                         -- out_valid
 		);
 	end component nco;
+
+  component transmitter_CA is
+    generic (
+      PHASE_ADVANCE : integer := 1; -- Code phase advance caused by time spent for ram r/w
+      TIMER_ADVANCE : integer := 16
+    );
+    port (
+      clk                : IN std_logic;
+      reset              : IN std_logic;
+      PRN                : OUT std_logic_vector(31 downto 0);
+      enable             : IN std_logic;
+      code_phase         : IN CODE_PHASE_T;
+      epoch              : OUT std_logic
+    ) ;
+  end component transmitter_CA;
 begin
-  signal_out_i <= sin_out;
-  signal_out_q <= cos_out;
+  --signal_out_i <= sin_out when ;
+  --signal_out_q <= cos_out;
   rst_n        <= not reset;
   NCO_GEN: for i in 0 to 4 generate
     n0 : nco 
@@ -65,18 +80,32 @@ begin
     cos_out(i)(11 downto 0)  <= cos_out_12(i);
     sin_out(i)(15 downto 12) <= (others => sin_out_12(i)(11));
     cos_out(i)(15 downto 12) <= (others => cos_out_12(i)(11));
+
+    c0: transmitter_CA
+    port map(
+      clk        => clk,
+      reset      => reset,
+      PRN        => CA_channels(i),
+      enable     => enable,
+      code_phase => phase_channels(i),
+      epoch      => open
+    );
+
+    signal_out_i(i) <= sin_out(i) when CA_channels(i)(prn_channels(i)) = '1' else
+      (not sin_out(i)) + 1;
+    signal_out_q(i) <= cos_out(i) when CA_channels(i)(prn_channels(i)) = '1' else
+      (not cos_out(i)) + 1;
   end generate;
 
-  addressa_inner <= conv_std_logic_vector(update_cnt, 4) when update = '1' else
+
+
+  address <= conv_std_logic_vector(update_cnt, 4) when update = '1' else
     (others => '0');
-  addressa       <= addressa_inner;
-  addressb       <= addressa_inner + 5;
   UPDATE_PRO : process( clk, reset )
   begin
     if reset = '1' then
       incr_channels    <= (others => (others => '0'));
-      phase_channels_1 <= (others => (others => '0'));
-      phase_channels_2 <= (others => (others => '0'));
+      phase_channels   <= (others => (others => '0'));
       prn_channels     <= (others => 0);
       cnt_reg          <= 0;
       -- addressa_inner   <= conv_std_logic_vector(0, 4);
@@ -86,11 +115,12 @@ begin
       if update = '1' then
         -- addressa_inner            <= conv_std_logic_vector(update_cnt, 4);
         -- addressb <= conv_std_logic_vector(update_cnt + 5, 4);
+        if prn_phase(15) = '1' then
+          incr_channels(cnt_reg)    <= incr;
+          phase_channels(cnt_reg)   <= prn_phase(9 downto 0);
+          prn_channels(cnt_reg)     <= conv_integer(unsigned(prn_phase(14 downto 10)));
+        end if ;
 
-        incr_channels(cnt_reg)    <= incr;
-        phase_channels_1(cnt_reg) <= prn_phase(9 downto 0);
-        phase_channels_2(cnt_reg) <= prn_phase(19 downto 10);
-        prn_channels(cnt_reg)     <= conv_integer(prn_phase(24 downto 20));
       else
         -- addressa_inner            <= conv_std_logic_vector(0, 4);
       end if ;

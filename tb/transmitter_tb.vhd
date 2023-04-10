@@ -10,7 +10,7 @@ end transmitter_tb;
 architecture arch of transmitter_tb is
 
   signal clk, reset, START, ENDING : std_logic := '0';
-  signal addressa, addressb : RAM_DEPTH_T;
+  signal address : RAM_DEPTH_T;
   signal qa, qb : RAM_WIDTH_T;
   signal out_i, out_q : BLADERF_OUTPUT_T;
   component transmitter is
@@ -19,8 +19,7 @@ architecture arch of transmitter_tb is
       reset       : IN std_logic;
       START       : IN  std_logic; -- start to load
       ENDING      : IN  std_logic; -- end to transmit
-      addressa    : OUT RAM_DEPTH_T;
-      addressb    : OUT RAM_DEPTH_T;
+      address     : OUT RAM_DEPTH_T;
       incr        : IN  RAM_WIDTH_T;
       prn_phase   : IN  RAM_WIDTH_T;
       signal_out_i: OUT BLADERF_OUTPUT_T;
@@ -32,7 +31,7 @@ architecture arch of transmitter_tb is
     port (
       clk : IN std_logic;
       reset : IN std_logic;
-      addressa, addressb : IN RAM_DEPTH_T;
+      address : IN RAM_DEPTH_T;
       qa, qb :  OUT RAM_WIDTH_T
     ) ;
   end component;
@@ -46,8 +45,7 @@ begin
     reset        => reset,
     START        => START,
     ENDING       => ENDING,
-    addressa     => addressa,
-    addressb     => addressb,
+    address      => address,
     incr         => qa,
     prn_phase    => qb,
     signal_out_i => out_i,
@@ -58,8 +56,7 @@ begin
   port map(
     clk      => clk,
     reset    => reset,
-    addressa => addressa,
-    addressb => addressb,
+    address  => address,
     qa       => qa,
     qb       => qb
   );
