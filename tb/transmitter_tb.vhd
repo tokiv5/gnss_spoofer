@@ -12,7 +12,7 @@ architecture arch of transmitter_tb is
   signal clk, reset, START, ENDING : std_logic := '0';
   signal address : RAM_DEPTH_T;
   signal qa, qb : RAM_WIDTH_T;
-  signal out_i, out_q : BLADERF_OUTPUT_T;
+  signal out_i, out_q : BLADERF_T;
   component transmitter is
     port (
       clk         : IN std_logic;
@@ -22,8 +22,8 @@ architecture arch of transmitter_tb is
       address     : OUT RAM_DEPTH_T;
       incr        : IN  RAM_WIDTH_T;
       prn_phase   : IN  RAM_WIDTH_T;
-      signal_out_i: OUT BLADERF_OUTPUT_T;
-      signal_out_q: OUT BLADERF_OUTPUT_T
+      signal_sca_i: OUT BLADERF_T;
+      signal_sca_q: OUT BLADERF_T
     ) ;
   end component;
   
@@ -48,8 +48,8 @@ begin
     address      => address,
     incr         => qa,
     prn_phase    => qb,
-    signal_out_i => out_i,
-    signal_out_q => out_q
+    signal_sca_i => out_i,
+    signal_sca_q => out_q
   );
 
   m0: fake_memory

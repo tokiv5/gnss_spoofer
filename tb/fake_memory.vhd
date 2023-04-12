@@ -39,7 +39,7 @@ begin
 
       ram_p(2)(9 downto 0)   <= conv_std_logic_vector(100, 10);
       ram_p(2)(14 downto 10) <= conv_std_logic_vector(16, 5);
-      ram_p(2)(15)           <= '0'; -- Not valid
+      ram_p(2)(15)           <= '1'; -- Not valid
       ram_p(2)(31 downto 16) <= (others => '0');
 
       ram_p(3)(9 downto 0)   <= conv_std_logic_vector(0, 10);

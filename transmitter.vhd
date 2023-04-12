@@ -13,8 +13,8 @@ entity transmitter is
     address     : OUT RAM_DEPTH_T;
     incr        : IN  RAM_WIDTH_T;
     prn_phase   : IN  RAM_WIDTH_T;
-    signal_out_i: OUT BLADERF_OUTPUT_T;
-    signal_out_q: OUT BLADERF_OUTPUT_T
+    signal_sca_i: OUT BLADERF_T; -- rescale after adding up
+    signal_sca_q: OUT BLADERF_T
   ) ;
 end transmitter;
 
@@ -45,8 +45,8 @@ architecture arch of transmitter is
       address     : OUT RAM_DEPTH_T;
       incr        : IN  RAM_WIDTH_T;
       prn_phase   : IN  RAM_WIDTH_T;
-      signal_out_i: OUT BLADERF_OUTPUT_T;
-      signal_out_q: OUT BLADERF_OUTPUT_T
+      signal_sca_i: OUT BLADERF_T; -- rescale after adding up
+      signal_sca_q: OUT BLADERF_T
     ) ;
   end component;
 begin
@@ -71,7 +71,7 @@ begin
     address      => address,
     incr         => incr,
     prn_phase    => prn_phase,
-    signal_out_i => signal_out_i,
-    signal_out_q => signal_out_q
+    signal_sca_i => signal_sca_i,
+    signal_sca_q => signal_sca_q
   );
 end arch ; -- arch

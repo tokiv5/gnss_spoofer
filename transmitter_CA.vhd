@@ -6,7 +6,6 @@ use work.gnss_p.all;
 
 entity transmitter_CA is
   generic (
-    PHASE_ADVANCE : integer := 1; -- Code phase advance caused by time spent for ram r/w
     TIMER_ADVANCE : integer := 16
   );
   port (
@@ -41,7 +40,7 @@ begin
     clock   => clk,
     q       => PRN
   );
-  code_sum  <= ('0' & code_count) + ('0' & code_phase) + PHASE_ADVANCE; 
+  code_sum  <= ('0' & code_count) + ('0' & code_phase); 
   code_diff <= code_sum - conv_std_logic_vector(1023, 11);
   code_addr <= code_sum(9 downto 0) when unsigned(code_sum) < 1023 else code_diff(9 downto 0);
 

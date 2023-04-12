@@ -14,8 +14,8 @@ entity transmitter_gen is
     address     : OUT RAM_DEPTH_T;
     incr        : IN  RAM_WIDTH_T;
     prn_phase   : IN  RAM_WIDTH_T;
-    signal_out_i: OUT BLADERF_OUTPUT_T;
-    signal_out_q: OUT BLADERF_OUTPUT_T
+    signal_sca_i: OUT BLADERF_T; -- rescale after adding up
+    signal_sca_q: OUT BLADERF_T
   ) ;
 end transmitter_gen;
 
@@ -35,6 +35,15 @@ architecture arch of transmitter_gen is
   signal addressa_inner  : RAM_DEPTH_T;
 
   signal CA_channels     : CA_OUTPUT_T;
+
+  signal signal_out_i    : BLADERF_OUTPUT_T;
+  signal signal_out_q    : BLADERF_OUTPUT_T;
+
+  subtype SIGNAL_ADD_T   is std_logic_vector(18 downto 0);
+  type SIGNAL_EXTEND_T   is array(4 downto 0) of SIGNAL_ADD_T;
+  
+  signal i_extend, q_extend : SIGNAL_EXTEND_T;
+  signal i_add, q_add       : SIGNAL_ADD_T;
   component nco is
 		port (
 			clk       : in  std_logic                     := 'X';             -- clk
@@ -49,7 +58,6 @@ architecture arch of transmitter_gen is
 
   component transmitter_CA is
     generic (
-      PHASE_ADVANCE : integer := 1; -- Code phase advance caused by time spent for ram r/w
       TIMER_ADVANCE : integer := 16
     );
     port (
@@ -95,9 +103,18 @@ begin
       (not sin_out(i)) + 1;
     signal_out_q(i) <= cos_out(i) when CA_channels(i)(prn_channels(i)) = '1' else
       (not cos_out(i)) + 1;
+
+    i_extend(i)(18 downto 16) <= (others => signal_out_i(i)(15));
+    i_extend(i)(15 downto 0)  <= signal_out_i(i);
+    q_extend(i)(18 downto 16) <= (others => signal_out_q(i)(15));
+    q_extend(i)(15 downto 0)  <= signal_out_q(i);
   end generate;
 
+  i_add <= i_extend(0) + i_extend(1) + i_extend(2) + i_extend(3) + i_extend(4);
+  q_add <= q_extend(0) + q_extend(1) + q_extend(2) + q_extend(3) + q_extend(4);
 
+  signal_sca_i <= i_add(18 downto 3);
+  signal_sca_q <= q_add(18 downto 3);
 
   address <= conv_std_logic_vector(update_cnt, 4) when update = '1' else
     (others => '0');
