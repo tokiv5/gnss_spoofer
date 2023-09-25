@@ -15,7 +15,8 @@ entity ROM_CA_generator is
     enable             : IN std_logic;
     code_phase_out     : OUT CODE_PHASE_T;
     epoch              : OUT std_logic;
-    phase_period_epoch : OUT std_logic
+    phase_period_epoch : OUT std_logic;
+    timer              : OUT std_logic_vector(4 downto 0) -- for debug
   ) ;
 end ROM_CA_generator;
 
@@ -24,7 +25,8 @@ architecture arch of ROM_CA_generator is
   signal code_phase  : CODE_PHASE_T;
   signal code_addr   : CODE_PHASE_T;
   signal code_count  : CODE_PHASE_T;
-  signal local_timer : integer range 0 to 19;
+  signal local_timer : integer range 0 to 7;
+  --signal local_timer : integer range 0 to 19;
   signal code_sum    : std_logic_vector(10 downto 0);
   signal code_diff   : std_logic_vector(10 downto 0);
   component CAtable
@@ -36,6 +38,7 @@ architecture arch of ROM_CA_generator is
     );
   end component;
 begin
+  timer <= conv_std_logic_vector(local_timer, 5);
   code_phase_out <= code_phase;
   r0: CAtable
   port map(
@@ -50,7 +53,7 @@ begin
   --epoch <= '1' when code_count = '0' else '0';
   --phase_period_epoch <= '1' when local_timer
 
-  timer : process( reset, clk )
+  ptimer : process( reset, clk )
   begin
     if (reset = '1') then
       local_timer <= 0;
@@ -59,7 +62,7 @@ begin
 
     elsif rising_edge(clk) then
       if enable = '1' then
-        if (local_timer = 19) then
+        if (local_timer = 7) then
           local_timer <= 0;
           if code_count = conv_std_logic_vector(1022, 10) then
             code_count <= (others => '0');

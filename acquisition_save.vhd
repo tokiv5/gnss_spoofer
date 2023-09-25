@@ -27,6 +27,8 @@ architecture arch of acquisition_save is
   signal choose_cnt : integer range 0 to 31;
   signal save_cnt   : integer range 0 to 4;
   signal complete_in: std_logic;
+  signal wren_reg   : std_logic;
+  signal detect_reg : std_logic;
   -- type   chosenSAT  is array(4 downto 0) of integer range 0 to 31;
 
 begin
@@ -52,7 +54,7 @@ begin
           complete_in<= '0';
         end if ;
         
-        if detectedSAT(choose_cnt) = '1' then
+        if detect_reg = '1' then
           if save_cnt = 4 then
             save_cnt <= 0;
           else
@@ -64,6 +66,7 @@ begin
 
           data_b(9 downto 0)   <= phaseSAT(choose_cnt); -- Phase
           data_b(14 downto 10) <= conv_std_logic_vector(choose_cnt, 5); -- PRN
+          -- data_b(4 downto 0) <= conv_std_logic_vector(choose_cnt, 5); -- PRN
           data_b(15)           <= '1'; -- Valid
         else
           wren    <= '0';
@@ -71,12 +74,23 @@ begin
       else
         choose_cnt <= 0;
         save_cnt   <= 0;
-        data_a     <= (others => '0');
-        data_b     <= (others => '0');
+        -- data_a     <= (others => '0');
+        -- data_b     <= (others => '0');
         wren       <= '0';
         complete_in<= '0';
       end if ;
     end if ;
   end process ; 
+
+  wren_pro : process( reset, clk )
+  begin
+    if reset='1' then
+      --wren <= '0';
+      detect_reg <= '0';
+    elsif rising_edge(clk) then
+      --wren <= wren_reg;
+      detect_reg <= detectedSAT(choose_cnt);
+    end if ;
+  end process ; -- wren_pro
   
 end arch ; -- arch
