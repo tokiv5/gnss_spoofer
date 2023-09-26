@@ -9,3 +9,5 @@ transcript
 *.mpf
 *.wlf
 *.zip
+git*
+ubuntu
